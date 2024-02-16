@@ -33,10 +33,50 @@ void loop() {
   delay(5);
   String msg = Serial.readStringUntil('\n'); //read until the newline symbol
 
-  if(msg != ""){
-    Serial.println("The brightness is " + msg); //FEEDBACK LINE
+//  if(msg != ""){
+//    Serial.println("The brightness is " + msg); //FEEDBACK LINE
+//    brightness = msg.toInt(); //converts msg from String to int
+//    analogWrite(LED_R, brightness); //Just testing out RED
+//    analogWrite(11, brightness); //RGB
+//  }
+
+  //RED
+  if (msg == "r"){
+    Serial.println("Controlling RED");
+    msg = ""; //reset msg
+    while(msg == "") {
+      msg = Serial.readStringUntil('\n'); //read until the newline symbol
+    }
+    Serial.println("The brightness of RED is " + msg); //FEEDBACK LINE
     brightness = msg.toInt(); //converts msg from String to int
     analogWrite(LED_R, brightness); //Just testing out RED
+    analogWrite(11, brightness); //RGB
+  }
+
+  //GREEN
+  else if (msg == "g"){
+    Serial.println("Controlling GREEN");
+    msg = ""; //reset msg
+    while(msg == "") {
+      msg = Serial.readStringUntil('\n'); //read until the newline symbol
+    }
+    Serial.println("The brightness of GREEN is " + msg); //FEEDBACK LINE
+    brightness = msg.toInt(); //converts msg from String to int
+    analogWrite(LED_G, brightness); //Just testing out RED
+    analogWrite(11, brightness); //RGB
+  }
+
+
+  //BLUE
+  else if (msg == "b"){
+    Serial.println("Controlling BLUE");
+    msg = ""; //reset msg
+    while(msg == "") {
+      msg = Serial.readStringUntil('\n'); //read until the newline symbol
+    }
+    Serial.println("The brightness of BLUE is " + msg); //FEEDBACK LINE
+    brightness = msg.toInt(); //converts msg from String to int
+    analogWrite(LED_B, brightness); //Just testing out RED
     analogWrite(11, brightness); //RGB
   }
   
