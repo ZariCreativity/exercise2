@@ -2,6 +2,10 @@ let pHtmlMsg;
 let serialOptions = { baudRate: 9600  };
 let serial;
 
+
+//Display Emotion selected on webpage
+let emotionMsg;
+
 //Video Camera Variables
 let video;
 let poseNet;
@@ -12,6 +16,9 @@ let r = 0;
 let g = 0;
 let b = 0;
 let brightnessFraction = 1.0;
+
+//Buzzer Volume/Intensity
+let buzzer = 0;
 
 function setup() {
   createCanvas(400, 400);
@@ -28,6 +35,7 @@ function setup() {
 
   // Add in a lil <p> element to provide messages. This is optional
   pHtmlMsg = createP("Click anywhere on this page to open the serial connection dialog");
+  //emotionMSG = createP("Current emotion displaying: " + [insert message from serial] );
   
   //CAMERA SET UP------------------------------------------------------------------------
   // Set up the poseNet with m5.js
@@ -114,110 +122,69 @@ function draw() {
   if(currentPoses){
     for(let human of currentPoses){
 
-      //We only need 3-4 colors
-      //Green, yellow, orange(?), red
-  
-      // if(human.pose.nose.x >= 0 && human.pose.nose.x < 80){
-      //   // ultra violet
-      //   r = 134;
-      //   g = 25;
-      //   b = 245;
-      // }
-      // else if (human.pose.nose.x >= 80 && human.pose.nose.x < 160){
-      //   // violet
-      //   r = 117;
-      //   g = 21;
-      //   b = 164;       
-      // }
-      // else if (human.pose.nose.x >= 160 && human.pose.nose.x < 240){
-      //   // blue
-      //   r = 0;
-      //   g = 0;
-      //   b = 245;
-      // }
-      // else if (human.pose.nose.x >= 240 && human.pose.nose.x < 320){
-      //   // green
-      //   r = 96;
-      //   g = 178;
-      //   b = 87;
-      // }
-      // else if (human.pose.nose.x >= 320 && human.pose.nose.x < 400){
-      //   // yellow
-      //   r = 254;
-      //   g = 255;
-      //   b = 84;
-      // }
-      // else if (human.pose.nose.x >= 400 && human.pose.nose.x < 480){
-      //   // orange
-      //   r = 236;
-      //   g = 109;
-      //   b = 44;
-      // }
-      // else if (human.pose.nose.x >= 480 && human.pose.nose.x < 560){
-      //   // red
-      //   r = 218;
-      //   g = 56;
-      //   b = 50;
-      // }
-      // else{
-      //   // near infrared
-      //   r = 165;
-      //   g = 46;
-      //   b = 38;
-      // }
 
-      if (human.pose.nose.x > centerX - 50 && human.pose.nose.x < centerX + 50){
+       //ACTUAL COLOR CHANGING CODE------------------------------------
+       if ((human.pose.nose.x > centerX - 50 && human.pose.nose.x < centerX + 50) &&
+       (human.pose.nose.y > centerY - 50 && human.pose.nose.y < centerY + 50)) {
         //green
-        r = 96;
-        g = 178;
-        b = 87;
+        r = 0;
+        g = 255;
+        b = 0;
+
+        buzzer = 0;
       }
 
-      else if (human.pose.nose.x > centerX - 100 && human.pose.nose.x < centerX + 100){
+      else if ((human.pose.nose.x > centerX - 100 && human.pose.nose.x < centerX + 100) && 
+      (human.pose.nose.y > centerY - 100 && human.pose.nose.y < centerY + 100)){
         //yellow
         r = 254;
         g = 255;
-        b = 84;
+        b = 0;
+
+        buzzer = 0;
       }
 
-      else if (human.pose.nose.x > centerX - 200 && human.pose.nose.x < centerX + 200){
+      else if ((human.pose.nose.x > centerX - 200 && human.pose.nose.x < centerX + 200) &&
+      (human.pose.nose.y > centerY - 200 && human.pose.nose.y < centerY + 200)){
         // red
-        r = 218;
-        g = 56;
-        b = 50;
+        r = 255;
+        g = 0;
+        b = 0;
+
+        buzzer = 150; //It only buzzes if you're in the red
       }
-      
-  
-      if(human.pose.nose.y >= 0 && human.pose.nose.y < 96){
-        // brightness fraciton is 1.0
-        brightnessFraction = 1.0;
-      }
-      else if (human.pose.nose.y >= 96 && human.pose.nose.y < 192){
-        // brightness fraciton is 0.75
-        brightnessFraction = 0.75;
-      }
-      else if (human.pose.nose.y >= 192 && human.pose.nose.y < 288){
-        // brightness fraciton is 0.5
-        brightnessFraction = 0.5;
-      }
-      else if (human.pose.nose.y >= 288 && human.pose.nose.y < 384){
-        // brightness fraciton is 0.25
-        brightnessFraction = 0.25;
-      }
-      else{
-        // brightness fraciton is 0.05
-        brightnessFraction = 0.05;
-      }
-  
+
+      brightnessFraction = 0.5; //DEFAULT BRIGHTNESS
+
       let ledStr = "rgba(" + r + "," + g + "," + b + "," + brightnessFraction + ")";
       fill(ledStr); 
       noStroke();
       circle(human.pose.nose.x, human.pose.nose.y, 40);
     }
   }
+
+  //EMOTION BUTTONS-----------------------------------------------------------------------
+
 }
 
 //ADDITIONAL FUNCTIONS-------------------------------------------------------------------
+
+//THE FUNCITON THAT MATTERS
+function onPoseDetected(poses) {
+  // print("On new poses detected!");
+  currentPoses = poses;
+  if(currentPoses){
+    let strHuman = " human";
+    if(currentPoses.length > 1){
+      strHuman += 's';
+    }
+    text("We found " + currentPoses.length + strHuman);
+
+    serialWriteLEDColorAndBuzzer(r,g,b,brightnessFraction, buzzer);
+    //serialReadEmotionButton(); //because this function is here, you can only change emotes when a face is detected
+  }
+}
+
 /**
  * Callback function by serial.js when there is an error on web serial
  * 
@@ -268,33 +235,32 @@ function mouseClicked() {
   }
 }
 
-//Captures motion detected by camera
-function onPoseDetected(poses) {
-  // print("On new poses detected!");
-  currentPoses = poses;
-  if(currentPoses){
-    let strHuman = " human";
-    if(currentPoses.length > 1){
-      strHuman += 's';
-    }
-    text("We found " + currentPoses.length + strHuman);
-  }
-
-  serialWriteLEDColorBrightness(r,g,b,brightnessFraction);
-}
-
 //SENDS DATA FROM BROWSER TO SERIAL FOR ARDUINO TO GRAB--------------------------
 /**
  * Called automatically by the browser through p5.js when data sent to the serial
  */
-function serialWriteLEDColorBrightness(red, green, blue, brightness){
+// buzzerVol is the intensity of the buzzer
+function serialWriteLEDColorAndBuzzer(red, green, blue, brightness, buzzerVol){
   if(serial.isOpen()){
-    let strData = red + "," + green + "," + blue + "," + nf(brightness,1,2);
+    let strData = red + "," + green + "," + blue + "," + nf(brightness,1,2) + "," + buzzerVol;
     console.log(strData);
     serial.writeLine(strData);
   }
 }
 
+//Reads from Arduino to webpage
+/**function serialReadEmotionButton(){
+  if(serial.isOpen()){
+    //read from whatever pins the pushbuttons are connected to
+    //I think we only need 1 pin
+    //emotionMsg = serial.readStringUntil('\n');
+    
+    emotionMsg.html(serial.readStringUntil('\n'));
+  }
+}
 
-
+function serialEvent() {
+  inData = Number(serial.read());
+}
+*/
 
