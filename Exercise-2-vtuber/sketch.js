@@ -1,10 +1,8 @@
+//MOST OF THE CODE BELOW WAS BORROWED FROM A DEMO SHOWN IN CLASS
+//ADDITIONAL CODE WRITTEN BY AZARIA & LORRAINE IS LABLED AS "ADDITIONAL", "ALT", OR "ORIGINAL"
 let pHtmlMsg;
 let serialOptions = { baudRate: 9600  };
 let serial;
-
-
-//Display Emotion selected on webpage
-let emotionMsg;
 
 //Video Camera Variables
 let video;
@@ -17,7 +15,7 @@ let g = 0;
 let b = 0;
 let brightnessFraction = 1.0;
 
-//Buzzer Volume/Intensity
+//Buzzer Volume/Intensity - ORIGINAL
 let buzzer = 0;
 
 function setup() {
@@ -35,7 +33,6 @@ function setup() {
 
   // Add in a lil <p> element to provide messages. This is optional
   pHtmlMsg = createP("Click anywhere on this page to open the serial connection dialog");
-  //emotionMSG = createP("Current emotion displaying: " + [insert message from serial] );
   
   //CAMERA SET UP------------------------------------------------------------------------
   // Set up the poseNet with m5.js
@@ -46,9 +43,10 @@ function setup() {
 }
 
 function draw() {
-  resizeCanvas(video.width, video.height);
+  resizeCanvas(video.width, video.height); //ALT - we changed the width and height of the canvas to match that of the video
   background(220);
 
+  //ADDITIONAL variables to assist with mapping face tracking
   let centerX = video.width/2;
   let centerY = video.height/2;
 
@@ -59,12 +57,13 @@ function draw() {
 
   image(video, 0, 0); // draw the video to the screen at 0,0
 
-  //Point in the center
+  //Point in the center of video - ORIGINAL
   stroke(255, 0, 0);
   strokeWeight(15);
   point(centerX,centerY);
 
-  //GREEN BOX----------------------------------------------------
+  //ORIGINAL GUIDE BOXES to Assist with Mapping Face Tracking-------------------------------------
+  //Green Box
   //top
   stroke(0, 255, 0);
   strokeWeight(5);  
@@ -82,7 +81,7 @@ function draw() {
   strokeWeight(5);  
   line(centerX + 50, centerY - 50, centerX + 50, centerY + 50);
 
-  //YELLOW BOX----------------------------------------------------
+  //Yellow Box
   //top
   stroke(255, 255, 0);
   strokeWeight(5);  
@@ -100,7 +99,7 @@ function draw() {
   strokeWeight(5);  
   line(centerX + 100, centerY - 100, centerX + 100, centerY + 100);
 
-  //RED BOX----------------------------------------------------------
+  //Red Box
   //top
   stroke(255, 0, 0);
   strokeWeight(5);  
@@ -117,13 +116,14 @@ function draw() {
   stroke(255, 0, 0);
   strokeWeight(5);  
   line(centerX + 200, centerY - 200, centerX + 200, centerY + 200);
+  //END OF ORIGINAL GUIDE BOXES----------------------------------------------------
 
 
   if(currentPoses){
     for(let human of currentPoses){
 
 
-       //ACTUAL COLOR CHANGING CODE------------------------------------
+       //ORIGINAL COLOR CHANGING CODE------------------------------------
        if ((human.pose.nose.x > centerX - 50 && human.pose.nose.x < centerX + 50) &&
        (human.pose.nose.y > centerY - 50 && human.pose.nose.y < centerY + 50)) {
         //green
@@ -154,7 +154,8 @@ function draw() {
         buzzer = 150; //It only buzzes if you're in the red
       }
 
-      brightnessFraction = 0.5; //DEFAULT BRIGHTNESS
+      brightnessFraction = 0.5; //ORIGINAL DEFAULT BRIGHTNESS
+      //END OF ORIGINAL COLOR CHANGING CODE-----------------------------------------------
 
       let ledStr = "rgba(" + r + "," + g + "," + b + "," + brightnessFraction + ")";
       fill(ledStr); 
@@ -163,13 +164,11 @@ function draw() {
     }
   }
 
-  //EMOTION BUTTONS-----------------------------------------------------------------------
-
 }
 
-//ADDITIONAL FUNCTIONS-------------------------------------------------------------------
+//Other Functions-------------------------------------------------------------------
 
-//THE FUNCITON THAT MATTERS
+//When a pose is detected on video
 function onPoseDetected(poses) {
   // print("On new poses detected!");
   currentPoses = poses;
@@ -180,8 +179,8 @@ function onPoseDetected(poses) {
     }
     text("We found " + currentPoses.length + strHuman);
 
-    serialWriteLEDColorAndBuzzer(r,g,b,brightnessFraction, buzzer);
-    //serialReadEmotionButton(); //because this function is here, you can only change emotes when a face is detected
+    //serialWriteLEDColorAndBrightness(r,g,b,brightnessFraction);  unlike the demo, we are not using this function
+    serialWriteLEDColorAndBuzzer(r,g,b,brightnessFraction, buzzer); //ORIGINAL function
   }
 }
 
@@ -235,7 +234,19 @@ function mouseClicked() {
   }
 }
 
-//SENDS DATA FROM BROWSER TO SERIAL FOR ARDUINO TO GRAB--------------------------
+/**
+ * Called automatically by the browser through p5.js when data sent to the serial
+ *
+function serialWriteLEDColorAndBrightness(red, green, blue, brightness){
+  if(serial.isOpen()){
+    let strData = red + "," + green + "," + blue + "," + nf(brightness,1,2);
+    console.log(strData);
+    serial.writeLine(strData);
+  }
+}
+*/
+
+//OUR ALT VERSION OF THE DEMO'S FUNCTION ABOVE--------------------------
 /**
  * Called automatically by the browser through p5.js when data sent to the serial
  */
@@ -247,20 +258,4 @@ function serialWriteLEDColorAndBuzzer(red, green, blue, brightness, buzzerVol){
     serial.writeLine(strData);
   }
 }
-
-//Reads from Arduino to webpage
-/**function serialReadEmotionButton(){
-  if(serial.isOpen()){
-    //read from whatever pins the pushbuttons are connected to
-    //I think we only need 1 pin
-    //emotionMsg = serial.readStringUntil('\n');
-    
-    emotionMsg.html(serial.readStringUntil('\n'));
-  }
-}
-
-function serialEvent() {
-  inData = Number(serial.read());
-}
-*/
 
