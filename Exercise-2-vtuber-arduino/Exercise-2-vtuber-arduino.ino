@@ -1,27 +1,22 @@
+//PIN Numbers
 const int RGB_RED_PIN = 3;
 const int RGB_GREEN_PIN = 5;
 const int RGB_BLUE_PIN = 6;
-
 const int IDLE_BTN = 2;
 const int HAPPY_BTN = 4;
 const int SAD_BTN = 7;
-
-
 const int BUZZER_PIN = 9;
 const int DELAY_MS = 5;
 
-
-
+//Variables for RGB values
 int redVal = 0;
 int greenVal = 0;
 int blueVal = 0;
+
+//Buzzer volume
 int buzzerVal = 0;
 
-/**
-int lastState = LOW; // the previous state from the button input pin
-int currentState = LOW; // the current reading from the button input pin
-*/
-
+//Emotion descriptions
 String idleEmote = "IDLE";
 String happyEmote = "HAPPY";
 String sadEmote = "SAD";
@@ -36,11 +31,11 @@ void setup() {
   pinMode(RGB_GREEN_PIN, OUTPUT); // Sets the green pin as an Output
   pinMode(RGB_BLUE_PIN, OUTPUT); // Sets the blue pin as an Output
 
-
+  pinMode(BUZZER_PIN, OUTPUT); // Buzzer output
   
-  pinMode(IDLE_BTN, INPUT_PULLUP);
-  pinMode(HAPPY_BTN, INPUT_PULLUP); // HAPPY button output
-  pinMode(SAD_BTN, INPUT_PULLUP); 
+  pinMode(IDLE_BTN, INPUT_PULLUP); // IDLE button input
+  pinMode(HAPPY_BTN, INPUT_PULLUP); // HAPPY button input
+  pinMode(SAD_BTN, INPUT_PULLUP); // SAD button input
   
 
 
@@ -94,21 +89,7 @@ void loop() {
     }
   }
 
-  //EMOTION BUTTONS----------------------------------------------------------------
-
-  
-  /** NONE OF THIS CODE WORKED
-  //Idle Button 
-  currentState = digitalRead(IDLE_BTN);
-  if(lastState == LOW && currentState == HIGH){ //If the button has been pressed, making it's state HIGH
-    currentEmote = idleEmote; //change the current emotion to IDLE
-    Serial.println(currentEmote); //announce the change
-
-    // save the last state
-    lastState = currentState;
-  }
-  */
-
+  //set current emotion
   setCurrentEmotion();
 
   delay(DELAY_MS);
